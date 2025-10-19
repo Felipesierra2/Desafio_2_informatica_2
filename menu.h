@@ -1,7 +1,7 @@
 #ifndef MENU_H
 #define MENU_H
 
-#include "sistema.h"
+#include "Sistema.h"
 
 void mostrarMenu(Sistema &s);
 

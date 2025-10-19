@@ -1,5 +1,5 @@
-#ifndef ARTISTA_H
-#define ARTISTA_H
+#ifndef ARTISTAS_H
+#define ARTISTAS_H
 
 #include "album.h"
 

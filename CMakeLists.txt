@@ -11,9 +11,9 @@ add_executable(desafio_2_informatica_2 main.cpp
     credito.h credito.cpp
     cancion.h cancion.cpp
     album.h album.cpp
-    artista.h artista.cpp
+    Artistas.h Artistas.cpp
     usuario.h usuario.cpp
-    sistema.h sistema.cpp)
+    Sistema.h Sistema.cpp)
 
 include(GNUInstallDirs)
 install(TARGETS desafio_2_informatica_2

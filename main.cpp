@@ -1,6 +1,6 @@
 #include <iostream>
-#include "../include/menu.h"
-#include "sistema.h"
+#include "menu.h"
+#include "Sistema.h"
 
 using namespace std;
 
