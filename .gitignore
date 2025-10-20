@@ -79,4 +79,11 @@ CMakeLists.txt.user*
 .pch/
 .rcc/
 .uic/
+
+# Archivos temporales y de usuario de CMake/Qt Creator
+CMakeLists.txt.user*
+CMakeLists.txt.*.TMP
+CMakeLists.txt.*.tblqHq
+*.pro.user*
+*.qmake.stash
 /build*/
