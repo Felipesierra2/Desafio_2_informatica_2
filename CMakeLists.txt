@@ -11,7 +11,7 @@ add_executable(desafio_2_informatica_2 main.cpp
     credito.h credito.cpp
     cancion.h cancion.cpp
     album.h album.cpp
-    Artistas.h Artistas.cpp
+    Artista.h Artista.cpp
     usuario.h usuario.cpp
     Sistema.h Sistema.cpp)
 
