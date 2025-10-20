@@ -2,7 +2,7 @@
 #define SISTEMA_H
 
 #include "usuario.h"
-#include "Artistas.h"
+#include "Artista.h"
 #include "cancion.h"
 #include "publicidad.h"
 
