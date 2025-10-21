@@ -59,10 +59,10 @@ void Sistema::cargarDatos(){
     std::cout << "Cargando Datos del sistema..." << std::endl;
 }
 
-Usuario* Sistema::iniciarSesion(const char* nickname)){
+Usuarios* Sistema::iniciarSesion(const char* sobreNombre)){
     //Interfaz de inicio de seccion
     for (int i = 0; i < numUsuarios; i++){
-        if (strcmp(usuarios[i]->getNickName(), nickname) == 0) {
+        if (strcmp(usuarios[i]->getsobreNombre(), sobreNombre) == 0) {
             return usuarios[i];
         }
     }
@@ -80,7 +80,7 @@ void Sistema::medirRecursos(){
     std::cout <<"Procesando recursos..." << std::endl;
 }
 
-bool Sistema::agregarUsuario(::Usuario* u){
+bool Sistema::agregarUsuario(Usuarios *u){
     if(numUsuarios >= capacidadUsuarios){
         std::cout << "No hay espacio para mas usuarios " <<  std::endl;
         return false;

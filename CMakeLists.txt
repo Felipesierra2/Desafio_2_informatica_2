@@ -7,12 +7,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_executable(desafio_2_informatica_2 main.cpp
     menu.h menu.cpp
-    publicidad.h publicidad.cpp
+    Publicidad.h Publicidad.cpp
     credito.h credito.cpp
     cancion.h cancion.cpp
     album.h album.cpp
     Artista.h Artista.cpp
-    usuario.h usuario.cpp
+    Usuario.h Usuario.cpp
     Sistema.h Sistema.cpp)
 
 include(GNUInstallDirs)

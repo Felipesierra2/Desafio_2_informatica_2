@@ -3,12 +3,14 @@
 
 class Publicidad {
 private:
-    char mensaje[50];
-    char categoria[5]; // A, B, C
+    char mensaje[501];
+    char categoria[5]; // 'C', 'B' y 'AAA'
 
 public:
     Publicidad();
-    Publicidad(const char*, const char*);
+    Publicidad(const char* msg, const char*cat);
+
+    int prioridad() const;
     void mostrarAnuncio() const;
 };
 

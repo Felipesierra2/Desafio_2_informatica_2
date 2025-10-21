@@ -1,10 +1,10 @@
 #ifndef SISTEMA_H
 #define SISTEMA_H
 
-#include "usuario.h"
+#include "Usuario.h"
 #include "Artista.h"
 #include "cancion.h"
-#include "publicidad.h"
+#include "Publicidad.h"
 
 class Usuarios;
 class Artistas;
@@ -43,10 +43,10 @@ public:
     ~Sistema();
 
     void cargarDatos();
-    Usuario* iniciarSesion(const char* name);
-    void reproduccionAleatoria(class Usuario* u, int k);
+    Usuarios* iniciarSesion(const char* sobreNombre);
+    void reproduccionAleatoria(class Usuarios* u, int k);
     void medirRecursos();
-    bool agregarUsuario(::Usuario* u);
+    bool agregarUsuario(::Usuarios* u);
     Cancion* buscarCancionId(long id);
 
 };

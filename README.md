@@ -2,7 +2,7 @@
 Proyecto Desafío II - Informática II (2025-2)
 
 ## Integrantes
-- Felipe Andrés Sierra Fernández
+- Andrés Felipe Sierra Fernández
 
 ## Estructura
 El proyecto se organiza en módulos (clases separadas) para representar el sistema de música UdeATunes.
