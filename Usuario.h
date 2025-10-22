@@ -1,7 +1,7 @@
 #ifndef USUARIO_H
 #define USUARIO_H
 
-#include "cancion.h"
+#include "Cancion.h"
 
 class Cancion;
 
@@ -33,7 +33,8 @@ public:
     bool operator ==(const Usuarios& otroUser);
 
 
-    const char* getSobrenombre() const { return sobreNombre; }
+    const char* getusuarios() const { return usuarios; }
 };
 
+#endif
 

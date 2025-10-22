@@ -1,7 +1,7 @@
 #include <cstring>
 #include <iostream>
 #include "Artista.h"
-#include "album.h"
+#include "Album.h"
 
 
 using namespace std;
