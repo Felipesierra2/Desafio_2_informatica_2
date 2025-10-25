@@ -1,8 +1,6 @@
-#include <iostream>
 #include <cstring>
-#include "Credito.h"
 
-Credito::Credito(){
+/*Credito::Credito(){
     nombre[0] = '\0';
     apellido[0] = '0';
     codigoAfiliacion[0] = '\0';
@@ -34,4 +32,4 @@ void Credito::mostrarCredito() const{
     std::cout << "  Nombre: " << nombre << " " << apellido << "\n";
     std::cout << "  Código de afiliación: " << codigoAfiliacion << "\n";
     std::cout << "  Rol: " << rol << "\n";
-}
+}*/

@@ -66,14 +66,6 @@ Artista::Artista(const Artista& otro) {
     }
 }
 
-Artista::~Artista() {
-    if (albumes != nullptr) {
-        for (int i = 0; i < numAlbumes; i++) {
-            delete albumes[i];
-        }
-        delete[] albumes;
-    }
-}
 
 bool Artista::agregarAlbum(Album* a) {
     if (numAlbumes >= capacidadAlbumes) {

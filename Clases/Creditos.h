@@ -1,7 +1,7 @@
-#ifndef CREDITO_H
-#define CREDITO_H
+#ifndef CREDITOS_H
+#define CREDITOS_H
 
-class Credito{
+/*class Creditos{
 private:
     char nombre[50];
     char apellido[50];
@@ -9,10 +9,10 @@ private:
     char rol[20];    // "Productor", "Músico", "Compositor"
 
 public:
-    Credito();
-    Credito(const char* nom, const char* ape, const char* cod, const char* rolP);
-    ~Credito();
+    Creditos();
+    Creditos(const char* nom, const char* ape, const char* cod, const char* rolP);
+    ~Creditos();
 
     void mostrarCredito()const;
-};
+};*/
 #endif

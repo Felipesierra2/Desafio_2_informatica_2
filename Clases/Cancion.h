@@ -1,7 +1,7 @@
 #ifndef CANCION_H
 #define CANCION_H
 
-#include "Credito.h"
+#include "Creditos.h"
 
 class Cancion {
 private:

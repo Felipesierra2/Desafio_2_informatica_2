@@ -1,0 +1,6 @@
+mensaje;categoria
+Descubre las últimas tendencias musicales en UdeATunes Premium;B
+No te pierdas el concierto exclusivo de artistas nacionales;AAA
+50% de descuento en tu primer mes con UdeATunes Premium;AAA
+Escucha música sin interrupciones, hazte Premium hoy;C
+Nueva playlist de verano disponible ahora;B
