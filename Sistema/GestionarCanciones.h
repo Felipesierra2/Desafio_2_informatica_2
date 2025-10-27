@@ -19,9 +19,9 @@ public:
     void cargarCanciones();
     void guardarCanciones();
     void mostrarCanciones() const;
+    void listarTodas();
     Cancion* buscarPorId(long id) const;
     Cancion* buscarPorNombre(const std::string& nombre) const;
-
     void reproducirCancion(long id);
 };
 

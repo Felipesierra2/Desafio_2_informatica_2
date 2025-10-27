@@ -11,7 +11,105 @@ using namespace std;
 Sistema::Sistema() {
     gestionarUsuarios = new GestionarUsuarios();
     gestionarCanciones = new GestionarCanciones();
+    gestionarPublicidad = new GestionarPublicidad();
+    cancionesReproducidasSesion = 0;
+    ultimoAnuncioMostradoId = -1;
+    std::srand((unsigned int)time(nullptr));
 
+    gestionarPublicidad->agregarPublicidad(Publicidad(1, "Compra 1 lleva 2", 'C'));
+    gestionarPublicidad->agregarPublicidad(Publicidad(2, "Descuento 20% en audífonos", 'B'));
+    gestionarPublicidad->agregarPublicidad(Publicidad(3, "Oferta exclusiva premium!", 'A'));
+
+}
+
+void Sistema::reiniciarContadoresSesion() {
+    cancionesReproducidasSesion = 0;
+    ultimoAnuncioMostradoId = -1;
+}
+
+std::string Sistema::seleccionarAnuncioAleatorio() {
+    int total = gestionarPublicidad->getCantidad();
+    if (total == 0) return std::string();
+
+    int pesoTotal = 0;
+    for (int i = 0; i < total; ++i) {
+        Publicidad* p = gestionarPublicidad->getPublicidad(i);
+        pesoTotal += p->getPrioridad();
+    }
+    if (pesoTotal == 0) return std::string();
+
+    int* pool = new int[pesoTotal];
+    int pos = 0;
+    for (int i = 0; i < total; ++i) {
+        int peso = gestionarPublicidad->getPublicidad(i)->getPrioridad();
+        for (int j = 0; j < peso; ++j) pool[pos++] = i;
+    }
+
+    const int MAX_TRIES = 10;
+    std::string seleccionado = std::string();
+    int idSeleccionado = -1;
+
+    for (int intento = 0; intento < MAX_TRIES; ++intento) {
+        int idxPool = std::rand() % pesoTotal;
+        int index = pool[idxPool];
+        Publicidad* p = gestionarPublicidad->getPublicidad(index);
+        int pid = p->getId();
+        if (pid != ultimoAnuncioMostradoId) {
+            seleccionado = p->getMensaje();
+            idSeleccionado = pid;
+            break;
+        }
+        if (intento == MAX_TRIES - 1) {
+
+            seleccionado = p->getMensaje();
+            idSeleccionado = pid;
+        }
+    }
+
+    delete[] pool;
+    if (idSeleccionado != -1) ultimoAnuncioMostradoId = idSeleccionado;
+    return seleccionado;
+}
+
+void Sistema::reproducirConAnuncios(Usuarios* usuario, long id) {
+    if (!gestionarCanciones) {
+        std::cout << "Error: gestor de canciones no inicializado.\n";
+        return;
+    }
+
+    gestionarCanciones->reproducirCancion(id);
+
+    cancionesReproducidasSesion++;
+
+    std::string tipo = usuario->getMembresia();
+    bool esPremium = (tipo == "Premium" || tipo == "premium");
+    if (esPremium) {
+
+        Cancion* c = gestionarCanciones->buscarPorId(id);
+        if (c) {
+            std::cout << "Reproducción completada (Premium). Veces reproducida ahora: " << c->getVecesReproducida() << "\n";
+            std::cout << "Calidad: 320 kbps\n";
+        }
+        return;
+    }
+
+
+    if ((cancionesReproducidasSesion % 2) == 0) {
+        std::string anuncio = seleccionarAnuncioAleatorio();
+        if (!anuncio.empty()) {
+            if (anuncio.length() <= 500) {
+                std::cout << "\n--- Anuncio ---\n" << anuncio << "\n---------------\n";
+            } else {
+                std::cout << "\n--- Anuncio ---\n" << anuncio.substr(0, 500) << "\n---------------\n";
+            }
+        }
+    }
+
+    Cancion* c = gestionarCanciones->buscarPorId(id);
+    if (c) {
+        std::cout << "Veces reproducida ahora: " << c->getVecesReproducida() << "\n";
+        std::cout << "Calidad: 128 kbps\n";
+    }
 }
 
 void Sistema::ejecutarAplicacion() {
@@ -116,85 +214,234 @@ void Sistema::manejarLogin() {
 
 }
 
-void Sistema::mostrarMenuUsuario(Usuarios* usuario){
-    if (usuarioAutenticado == nullptr) {
+void Sistema::mostrarMenuUsuario(Usuarios* usuario) {
+    if (usuario == nullptr) {
         std::cout << "Error: no hay usuario activo.\n";
         return;
     }
 
-    std::string tipo = usuarioAutenticado->getMembresia();
-    bool esPremium = (tipo == "Premium" || tipo == "premium");
+    reiniciarContadoresSesion();
+
+    std::string tipo = usuario->getMembresia();
+    bool esPremium = (tipo == "Premium" || tipo == "premium" || tipo == "PREMIUM");
 
     int opcion = -1;
-    do {
-        std::cout << "\n========================================\n";
-        std::cout << "    🎧 MENU DE USUARIO - " << usuarioAutenticado->getusuarios() << "\n";
-        std::cout << "    Tipo de membresía: " << tipo << "\n";
-        std::cout << "========================================\n";
-
-        std::cout << "1. Buscar canción por nombre\n";
-        std::cout << "2. Buscar canción por ID\n";
-        std::cout << "3. Reproducir canción\n";
-
-        if (esPremium) {
-            std::cout << "4. Agregar canción a favoritos\n";
-            std::cout << "5. Ver lista de favoritos\n";
-            std::cout << "6. Seguir lista de otro usuario Premium\n";
-        } else {
-            std::cout << "4. Ver anuncios pendientes\n";
-        }
-
-        std::cout << "0. Cerrar sesión\n";
+    while (true) {
+        std::cout << "\n===== MENÚ DE USUARIO =====\n";
+        std::cout << "Usuario: " << usuario->getusuarios() << "    Membresía: " << tipo << "\n\n";
+        std::cout << "1. Listar canciones disponibles\n";
+        std::cout << "2. Reproducir canción por ID\n";
+        std::cout << "3. Agregar canción a Favoritos\n";
+        std::cout << "4. Ver lista de Favoritos\n";
+        std::cout << "5. Seguir lista de favoritos de otro usuario premium\n";
+        std::cout << "6. Información de membresía / beneficios\n";
+        std::cout << "7. Cerrar sesión\n";
         std::cout << "Seleccione una opción: ";
-
-        opcion = leerOpcion();
-
-        switch (opcion) {
-        case 1:
-            std::cout << "\n(Buscar canción por nombre)\n";
-            break;
-
-        case 2:
-            std::cout << "\n(Buscar canción por ID)\n";
-            break;
-
-        case 3:
-            std::cout << "\n(Reproducir canción)\n";
-            break;
-
-        case 4:
-            if (esPremium) {
-                std::cout << "\n(Agregar canción a favoritos)\n";
-            } else {
-                std::cout << "\n(Mostrar anuncios)\n";
-            }
-            break;
-
-        case 5:
-            if (esPremium) {
-                std::cout << "\n(Mostrar lista de favoritos)\n";
-            } else {
-                std::cout << "Opción inválida.\n";
-            }
-            break;
-
-        case 6:
-            if (esPremium) {
-                std::cout << "\n(Seguir lista de otro usuario Premium)\n";
-            } else {
-                std::cout << "Opción inválida.\n";
-            }
-            break;
-
-        case 0:
-            std::cout << "Cerrando sesión...\n";
-            break;
-
-        default:
-            std::cout << "Opción inválida, intente de nuevo.\n";
+        if (!(std::cin >> opcion)) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cout << "Entrada inválida. Intente de nuevo.\n";
+            continue;
         }
 
-    } while (opcion != 0);
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-    usuarioAutenticado = nullptr; // limpiar sesión al salir
+        if (opcion == 1) {
+            if (gestionarCanciones) {
+                gestionarCanciones->listarTodas();
+            } else {
+                std::cout << "Error: gestor de canciones no disponible.\n";
+            }
+        }
+        else if (opcion == 2) {
+            long id;
+            std::cout << "Ingrese ID de la canción a reproducir: ";
+            if (!(std::cin >> id)) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "ID inválido.\n";
+                continue;
+            }
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+            reproducirConAnuncios(usuario, id);
+        }
+        else if (opcion == 3) {
+            if(!esPremium){
+                std::cout << "Solo los usuarios Premium pueden realizar esta acción. " <<std::endl;
+                continue;
+            }
+
+            std::cout << "Ingrese el ID de la cancion: ";
+            long id;
+
+            if (!(std::cin >> id)) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cout << "ID inválido.\n";
+                continue;
+            }
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+            bool ok = usuario->addFavorito(id);
+            if (ok) std::cout << "Canción agregada a Favoritos.\n";
+            else std::cout << "No se pudo agregar. ¿ID existe o ya está en favoritos? ¿Límite alcanzado?\n";
+        }
+        else if (opcion == 4) {
+            this->verFavoritos(usuario);
+        }
+        else if (opcion == 5) {
+            std::string otroUsuarioNick;
+            std::cout << "Ingrese el nombre/usuario de la persona a seguir: ";
+            std::getline(std::cin, otroUsuarioNick);
+            if (otroUsuarioNick.empty()) {
+                std::cout << "Nombre vacío.\n";
+                continue;
+            }
+
+            Usuarios* otro = gestionarUsuarios->buscarPorUsuario(otroUsuarioNick);
+            if (otro == nullptr) {
+                std::cout << "Usuario no encontrado.\n";
+                continue;
+            }
+
+            std::string tipoOtro = otro->getMembresia();
+            bool otroEsPremium = (tipoOtro == "Premium" || tipoOtro == "premium" || tipoOtro == "PREMIUM");
+            if (!otroEsPremium) {
+                std::cout << "Solo puedes seguir la lista de favoritos de usuarios premium.\n";
+                continue;
+            }
+
+            bool ok = usuario->seguirListaDe(otro);
+            if (ok) std::cout << "Ahora sigues la lista de favoritos de " << otro->getusuarios() << ".\n";
+            else std::cout << "No fue posible seguir la lista.\n";
+
+        }
+        else if (opcion == 6) {
+            std::cout << "\n--- Beneficios de la membresía ---\n";
+            if (esPremium) {
+                std::cout << "Premium (pago mensual 19900 COP):\n";
+                std::cout << " - Lista de favoritos personalizada (hasta 10000 canciones)\n";
+                std::cout << " - Seguir en tiempo real la lista de favoritos de otro usuario premium\n";
+                std::cout << " - Calidad de audio: 320 kbps\n";
+                std::cout << " - Reproducción sin publicidad\n";
+            } else {
+                std::cout << "Estándar (gratuito):\n";
+                std::cout << " - Calidad de audio: 128 kbps\n";
+                std::cout << " - Cada 2 canciones reproducidas verás un anuncio (máx 500 caracteres)\n";
+            }
+            std::cout << "----------------------------------\n";
+        }
+        else if (opcion == 7) {
+            std::cout << "Cerrando sesión...\n";
+            reiniciarContadoresSesion();
+            break;
+        }
+        else {
+            std::cout << "Opción no válida. Intente de nuevo.\n";
+        }
+    }
 }
+
+
+void Sistema::buscarCancionPorNombre() {
+    if (!gestionarCanciones) {
+        cout << "Error: gestor de canciones no inicializado.\n";
+        return;
+    }
+
+    string nombre;
+    cout << "Ingrese el nombre de la canción: ";
+    getline(cin, nombre);
+
+    Cancion* c = gestionarCanciones->buscarPorNombre(nombre);
+    if (!c) {
+        cout << "No se encontró ninguna canción con ese nombre.\n";
+        return;
+    }
+
+    cout << "\n=== Canción encontrada ===\n";
+    c->mostrarCancion();
+    c->mostrarCreditos();
+}
+
+void Sistema::buscarCancionPorId() {
+    if (!gestionarCanciones) {
+        cout << "Error: gestor de canciones no inicializado.\n";
+        return;
+    }
+
+    long id;
+    cout << "Ingrese el ID de la canción: ";
+    cin >> id;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    Cancion* c = gestionarCanciones->buscarPorId(id);
+    if (!c) {
+        cout << "No se encontró ninguna canción con ese ID.\n";
+        return;
+    }
+
+    cout << "\n=== Canción encontrada ===\n";
+    c->mostrarCancion();
+    c->mostrarCreditos();
+}
+
+void Sistema::reproducirCancionUsuario(Usuarios* usuario) {
+    if (!gestionarCanciones) {
+        cout << "Error: gestor de canciones no inicializado.\n";
+        return;
+    }
+
+    long id;
+    cout << "Ingrese el ID de la canción a reproducir: ";
+    cin >> id;
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+    Cancion* c = gestionarCanciones->buscarPorId(id);
+    if (!c) {
+        cout << "No se encontró ninguna canción con ese ID.\n";
+        return;
+    }
+
+    gestionarCanciones->reproducirCancion(id);
+
+    cout << "Reproducción completada.\n";
+    cout << "Veces reproducida ahora: " << c->getVecesReproducida() << "\n";
+}
+
+void Sistema::verFavoritos(Usuarios* usuario) {
+    if (usuario == nullptr) {
+        std::cout << "Error: usuario no válido.\n";
+        return;
+    }
+
+    int cantidad = usuario->getCantidadFavoritos();
+    if (cantidad == 0) {
+        std::cout << "No tienes canciones favoritas aún.\n";
+        return;
+    }
+
+    std::cout << "\n=== TUS CANCIONES FAVORITAS ===\n";
+    for (int i = 0; i < cantidad; ++i) {
+        long idCancion = usuario->getFavorito(i);
+        Cancion* c = gestionarCanciones->buscarPorId(idCancion);
+
+        if (c != nullptr) {
+            std::cout << (i + 1) << ". " << c->getNombre()
+            << " (" << c->getDuracion() << " min, "
+            << c->getVecesReproducida() << " reproducciones)\n";
+        } else {
+            std::cout << (i + 1) << ". ID " << idCancion << " (no encontrado)\n";
+        }
+    }
+    std::cout << "===============================\n";
+}
+
+
+
+
+
+
+
+

@@ -14,7 +14,7 @@ private:
     std::string rutaArchivo;
     int vecesReproducida;
 
-    Credito** creditos;  // ← arreglo dinámico
+    Credito** creditos;
     int numCreditos;
     int capacidadCreditos;
 
@@ -24,6 +24,8 @@ public:
             const std::string& ruta, int reproducciones = 0);
 
     ~Cancion();
+
+    friend class GestionarCanciones;
 
     // =============================GETTERS=========================//
     long getIdCancion() const;
@@ -47,6 +49,11 @@ public:
 
     void mostrarCancion() const;
     void incrementarReproduccion();
+    std::string obtenerArtista();
+    std::string obtenerAlbum();
+    int obtenerAnio();
+    std::string obtenerGenero();
+
 };
 
 #endif

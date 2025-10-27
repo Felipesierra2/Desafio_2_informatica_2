@@ -32,7 +32,7 @@ Cancion::~Cancion() {
 
 void Cancion::agregarCredito(Credito* c) {
     if (!c) return;
-    if (numCreditos >= capacidadCreditos) return; // límite 3: productor, músico, compositor
+    if (numCreditos >= capacidadCreditos) return;
     creditos[numCreditos++] = c;
 }
 
@@ -57,4 +57,30 @@ void Cancion::mostrarCancion() const {
 void Cancion::incrementarReproduccion() {
     ++vecesReproducida;
 }
+
+// ==================== GETTERS ==================== //
+long Cancion::getIdCancion() const {
+    return idCancion;
+}
+
+long Cancion::getIdAlbum() const {
+    return idAlbum;
+}
+
+std::string Cancion::getNombre() const {
+    return nombre;
+}
+
+float Cancion::getDuracion() const {
+    return duracion;
+}
+
+std::string Cancion::getRutaArchivo() const {
+    return rutaArchivo;
+}
+
+int Cancion::getVecesReproducida() const {
+    return vecesReproducida;
+}
+
 

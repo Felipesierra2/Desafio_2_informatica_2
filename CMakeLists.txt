@@ -24,6 +24,8 @@ add_executable(desafio_2_informatica_2
     Sistema/auxiliares.h Sistema/auxiliares.cpp
     Sistema/GestionarUsuarios.h Sistema/GestionarUsuarios.cpp
     Sistema/GestionarCanciones.h Sistema/GestionarCanciones.cpp
+    Sistema/GestionarPublicidad.h Sistema/GestionarPublicidad.cpp
+
 )
 
 

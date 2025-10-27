@@ -239,3 +239,13 @@ void GestionarUsuarios::MostrarUsuarios()
     }
     std::cout << std::endl;
 }
+
+Usuarios* GestionarUsuarios::buscarPorUsuario(const std::string& usuario) {
+    for (int i = 0; i < cantidadUsuarios; ++i) {
+        Usuarios* u = listaUsuarios[i];
+        if (u != nullptr && u->getusuarios() == usuario) {
+            return u;
+        }
+    }
+    return nullptr;
+}
