@@ -1,11 +1,14 @@
 #include <iostream>
-#include "menu.h"
 #include "Sistema.h"
+#include <windows.h>
+
 
 using namespace std;
 
 int main() {
-    Sistema sistema;
-    mostrarMenu(sistema);
+    SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
+    Sistema* sistema = new Sistema();
+    sistema->ejecutarAplicacion();
     return 0;
 }

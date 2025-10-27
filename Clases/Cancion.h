@@ -1,37 +1,56 @@
 #ifndef CANCION_H
 #define CANCION_H
 
-#include "Creditos.h"
+#include "Credito.h"
+#include <string>
+#include <iostream>
 
 class Cancion {
 private:
-    long id;
-    char nameCantante[50];
+    long idCancion;
+    long idAlbum;
+    std::string nombre;
     float duracion;
-    char rut128[128]; // ruta absoluta al archivo a 128 kbps
-    char rut320[128]; // ruta absoluta al archivo a 320 kbps
-    int creditos;
+    std::string rutaArchivo;
+    int vecesReproducida;
+
+    Credito** creditos;  // ← arreglo dinámico
     int numCreditos;
-    int numReproducciones;
+    int capacidadCreditos;
 
 public:
     Cancion();
-    Cancion(long idC, const char* nameC, float timeD, const char* r128,
-            const char* r320, int credit, int nC, int nR);
+    Cancion(long id, long idAlbm, const std::string& nombre, float duracion,
+            const std::string& ruta, int reproducciones = 0);
 
-    Cancion(const Cancion& otraCan);
     ~Cancion();
 
-    Cancion& operator =(const Cancion& otraCan);
-    bool operator ==(const Cancion& otraCan) const;
+    // =============================GETTERS=========================//
+    long getIdCancion() const;
+    long getIdAlbum() const;
+    std::string getNombre() const;
+    float getDuracion() const;
+    std::string getRutaArchivo() const;
+    int getVecesReproducida() const;
 
-    void mostrarRutas(bool calidadAlta)const;
-    void reproducir(bool calidadAlta);
+    //======================SETTERS============================///
+    void setIdCancion(long id);
+    void setIdAlbum(long idAlbm);
+    void setNombre(const std::string& n);
+    void setDuracion(float d);
+    void setRutaArchivo(const std::string& ruta);
+    void setVecesReproducida(int v);
 
-    long getId() const {return id;}
-    const char* getTitulo() const {return nameCantante;}
-    int getNumReproducciones() const {return numReproducciones;}
+    // =================== CRÉDITOS ====================== //
+    void agregarCredito(Credito* c);
+    void mostrarCreditos() const;
 
+    void mostrarCancion() const;
+    void incrementarReproduccion();
 };
 
 #endif
+
+
+
+

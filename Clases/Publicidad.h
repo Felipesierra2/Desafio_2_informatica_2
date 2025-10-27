@@ -1,18 +1,25 @@
 #ifndef PUBLICIDAD_H
 #define PUBLICIDAD_H
 
+#include <string>
+
 class Publicidad {
 private:
-    char mensaje[501];
-    char categoria[5]; // 'C', 'B' y 'AAA'
+    int idPublicidad;
+    std::string mensaje;
+    char categoria;  // 'C', 'B' o 'A' (para AAA)
+    int prioridad;   // 1, 2 o 3 según la categoría
 
 public:
     Publicidad();
-    Publicidad(const char* msg, const char*cat);
+    Publicidad(int id, const std::string& msg, char cat);
 
-    int prioridad() const;
-    void mostrarAnuncio() const;
+    int getId() const;
+    std::string getMensaje() const;
+    char getCategoria() const;
+    int getPrioridad() const;
 };
 
-#endif
+#endif // PUBLICIDAD_H
+
 

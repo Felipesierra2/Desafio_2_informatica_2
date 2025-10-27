@@ -1,319 +1,200 @@
 #include "Sistema.h"
+#include "Artista.h"
 #include "auxiliares.h"
 #include <iostream>
 #include <cstring>
+#include <cstdlib>
 #include <limits>
 
 
 using namespace std;
-
-bool esNickValido(const char* nick) {
-    for (int i = 0; nick[i] != '\0'; i++) {
-        unsigned char c = nick[i];
-        if (isalpha(c) || isdigit(c) || c == '_' || c == '-') continue;
-        return false;
-    }
-    return true;
-}
-
-bool esCiudadValida(const char* ciudad) {
-    for (int i = 0; ciudad[i] != '\0'; i++) {
-        unsigned char c = ciudad[i];
-        if (isalpha(c) || isspace(c)) continue;
-        return false;
-    }
-    return true;
-}
-
-/*============================================================
-*Constructores:
-*/
-
-Sistema::Sistema(){
-    usuarios = nullptr;
-    numUsuarios = 0;
-    capacidadUsuarios = 0;
-
-    artistas = nullptr;
-    numArtistas = 0;
-    capacidadArtistas = 0;
-
-    canciones = nullptr;
-    numCanciones = 0;
-    capacidadCanciones = 0;
-
-    publicidad = nullptr;
-    numPublicidad = 0;
-}
-
-//Liberamos memoria
-Sistema::~Sistema(){
-    if (usuarios) {
-        for (int i = 0; i < numUsuarios; ++i) {
-            if (usuarios[i]) delete usuarios[i];
-        }
-        delete[] usuarios;
-    }
-
-    /*    if (artistas) {
-        for (int i = 0; i < numArtistas; ++i) if (artistas[i]) delete artistas[i];
-        delete[] artistas;
-    }
-    if (canciones) {
-        for (int i = 0; i < numCanciones; ++i) if (canciones[i]) delete canciones[i];
-        delete[] canciones;
-    }
-    if (publicidad) {
-        for (int i = 0; i < numPublicidad; ++i) if (publicidad[i]) delete publicidad[i];
-        delete[] publicidad;
-    }*/
-
+Sistema::Sistema() {
+    gestionarUsuarios = new GestionarUsuarios();
+    gestionarCanciones = new GestionarCanciones();
 
 }
 
-/*============================================================================
- * Redimensionamiento de los arreglos(usuarios,artistas,canciones,publicidad)
-=========================================================================*/
+void Sistema::ejecutarAplicacion() {
+    int opcion = 0;
+    do {
+        mostrarMenuPrincipal();
+        cout << "Seleccione una opción: ";
+        int opcion = leerOpcion();
 
-bool Sistema::tamUsuarios(int nuevo){
-    if (nuevo <= capacidadUsuarios) return true;
-    Usuarios** aux = new Usuarios*[nuevo];
-    for (int i = 0; i < numUsuarios; i++)aux[i] = usuarios[i];
-    for (int i = numUsuarios;i < nuevo; i++ )aux[i] = nullptr;
-    delete[] usuarios;
-    usuarios = aux;
-    capacidadUsuarios = nuevo;
-    return true;
-}
-
-
-/*===========================================================================
- * agregarUsuario: metodo que se encarga de agregar un usuario registrado
- ========================================================================*/
-
-bool Sistema::agregarUsuario(Usuarios* u) {
-    if (!u) return false;
-    if (numUsuarios >= capacidadUsuarios) {
-        int nuevoTam = (capacidadUsuarios == 0) ? 4 : capacidadUsuarios * 2;
-        if (!tamUsuarios(nuevoTam)) {
-            cout << "Error: No se pudo reservar memoria para usuarios\n";
-            return false;
-        }
-    }
-    usuarios[numUsuarios++] = u;
-    return true;
-}
-
-/*=============================================================================
- * IniciarSesion: Metodo que revisa que el usuario este registrado en el sistema
- *
- *
-=============================================================================*/
-
-Usuarios* Sistema::iniciarSesion(const char* nickName){
-    if(!nickName) return nullptr;
-    for(int i = 0; i < numUsuarios; i++){
-        if(usuarios[i] && usuarios[i]->getusuarios()){
-            if(strcmp(usuarios[i]->getusuarios(),nickName) == 0){
-                return usuarios[i];
-            }
-        }
-    }
-    return nullptr;
-}
-
-/*===================================================================
- * cargarDatos: lee archivos
- * formato de cada linea: usuarios;membresia;ciudad;pais;fechaDeRegistro
- ============================================================================*/
-
-void Sistema::cargarDatos(){
-    const char* ruta = "database/usuarios.txt";
-    FILE* archivo = std::fopen(ruta, "r");
-
-    if(!archivo){
-        cout << "No se encontro la ruta (cargarDatos\n";
-        return;
-    }
-
-    const int TAM = 1024;
-    char buffer[TAM];
-
-    while(fgets(buffer,TAM,archivo)){
-        size_t tam = strlen(buffer);
-
-        if(tam > 0 && buffer[tam - 1] == '\n') buffer[tam - 1] = '\0';
-
-        if(strlen(buffer) == 0)continue;
-
-        char* copia = new char[strlen(buffer) + 1];
-        strcpy(copia, buffer);
-
-        char* separador = std::strtok(copia,";");
-        if(!separador){delete[] copia;continue;}
-        char* nick = separador;
-
-        separador = std::strtok(nullptr, ";");
-        char* membresia = separador ? separador:(char*) "estandar";
-
-        separador = std::strtok(nullptr, ";");
-        char* ciudad = separador ? separador:(char*)"";
-
-        separador = std::strtok(nullptr, ";");
-        char*pais = separador ? separador:(char*)"";
-
-        separador = std::strtok(nullptr, ";");
-        char*fecha = separador ? separador:(char*)"1999-08-14";
-
-        Usuarios* u = new Usuarios(nick,membresia,ciudad,pais,fecha,0);
-        if(!agregarUsuario(u)){
-            delete u;
-        }
-        delete[] copia;
-    }
-
-    fclose(archivo);
-    cout << "Carga de usuarios finalizada(cargarDatos)";
-}
-
-
-/*=========================================================
- * registrarUsuario: metodo por el cual un usuario puede crearse
- * una cuenta de UdeATune
- */
-
-void Sistema::registrarUsuario(){
-    const int MAX = 200;
-    char nick[MAX], membresia[MAX], ciudad[MAX], pais[MAX], fecha[MAX];
-
-    cout << "REGISTRAR NUEVO USUARIO: " <<endl;
-
-    //Nickname
-    do{
-        cout << "Nickname (solo letras, numeros, _ o -): ";
-        cin.getline(nick, MAX);
-        if (esVacio(nick) || !esNickValido(nick) || contieneSeparador(nick))
-            cout << "Nickname inválido.\n";
-    }while(esVacio(nick) || !esNickValido(nick) || contieneSeparador(nick));
-
-    //Membresia
-    while(true){
-        cout << "Membresía (Estandar/Premium): ";
-        cin.getline(membresia,MAX);
-        if (strcmp(membresia,"Estandar") == 0 || strcmp(membresia,"Premium") == 0)
+        switch (opcion) {
+        case 1:
+            manejarRegistro();
             break;
-        cout << "Entrada invalida. Solo se permite 'Estandar' o 'Premium'" <<endl;
-    }
-
-    //Ciudad
-    do {
-        cout << "Ciudad (solo letras y espacios): ";
-        cin.getline(ciudad, MAX);
-        if (esVacio(ciudad) || !esCiudadValida(ciudad) || contieneSeparador(ciudad))
-            cout << "Ciudad invalida.\n";
-    } while (esVacio(ciudad) || !esCiudadValida(ciudad) || contieneSeparador(ciudad));
-
-    //Pais
-    do {
-        cout << "Pais (solo letras y espacios): ";
-        cin.getline(pais, MAX);
-        if (esVacio(pais) || !esCiudadValida(pais) || contieneSeparador(pais))
-            cout << "Pais invalido.\n";
-    } while (esVacio(pais) || !esCiudadValida(pais) || contieneSeparador(pais));
-
-    //Fecha
-    do {
-        cout << "Fecha de registro (YYYY-MM-DD): ";
-        cin.getline(fecha, MAX);
-        if (!fechaValida(fecha)) cout << "Formato inválido.\n";
-    } while (!fechaValida(fecha));
-
-    int capFav = (std::strcmp(membresia, "Premium") == 0) ? 4:0;
-
-    Usuarios* u = new Usuarios(nick, membresia, ciudad , pais, fecha, capFav);
-    if(agregarUsuario(u)){
-        cout << "Usuario registrado correctamente.\n";
-
-        const char* ruta = "database/usuarios.txt";
-        FILE* archivo = std::fopen(ruta, "a");
-        if(archivo){
-            fprintf(archivo, "%s;%s;%s;%s;%s\n", nick, membresia, ciudad, pais, fecha);
-            fclose(archivo);
-        }else{
-            cout << "No se pudo guardar el archivo en registrarUsuarios\n";
+        case 2:
+            manejarLogin();
+            break;
+        case 3:
+            gestionarUsuarios->MostrarUsuarios();
+            break;
+        case 0:
+            cout << "Saliendo del sistema..." << endl;
+            break;
+        default:
+            cout << "Opción inválida. Intente de nuevo.\n";
         }
-    }else{
-        delete u;
-    }
+
+    } while (opcion != 0);
 }
 
+void Sistema::mostrarMenuPrincipal() {
+    cout << "\n=== MENÚ PRINCIPAL ===\n";
+    cout << "1. Registrar nuevo usuario\n";
+    cout << "2. Iniciar sesión\n";
+    cout << "3. Mostrar todos los usuarios\n";
+    cout << "0. Salir\n";
+}
 
-/*========================================================================
- * guardarUsuarios: funcion que se encarga de actualizar los arreglos
- * de los usuarios
-=======================================================================*/
+void Sistema::manejarRegistro() {
+    string usuario, membresia, ciudad, pais, fecha;
 
-void Sistema::guardarUsuarios(){
-    const char* ruta = "database/usuarios.txt";
-    FILE* archivo = std::fopen(ruta, "w");
+    do {
+        cout << "Nombre de usuario (1-15 caracteres): ";
+        getline(cin, usuario);
+        if (usuario.empty() || usuario.length() >= 15)
+            cout << "Longitud inválida. Debe tener entre 1 y 9 caracteres.\n";
+    } while (usuario.empty() || usuario.length() >= 15);
 
-    if(!archivo){
-        cout << "No se pudo abrir archivo en -> guardarUsuarios\n";
+    do {
+        cout << "Membresía (premium/estandar): ";
+        getline(cin, membresia);
+        if (!validarMembresia(membresia))
+            cout << "Opción inválida. Solo se acepta 'premium' o 'estandar'.\n";
+    } while (!validarMembresia(membresia));
+
+    do {
+        cout << "Ciudad: ";
+        getline(cin, ciudad);
+        if (!validarTexto(ciudad))
+            cout << "La ciudad solo puede contener letras y espacios.\n";
+    } while (!validarTexto(ciudad));
+
+    do {
+        cout << "País: ";
+        getline(cin, pais);
+        if (!validarTexto(pais))
+            cout << "El país solo puede contener letras y espacios.\n";
+    } while (!validarTexto(pais));
+
+    fecha = "";
+
+    bool exito = gestionarUsuarios->Registrarse(usuario, membresia, ciudad, pais, fecha);
+
+    if (exito)
+        cout << "Usuario registrado correctamente.\n";
+    else
+        cout << "No se pudo registrar el usuario.\n";
+}
+
+void Sistema::manejarLogin() {
+
+    std::string nombre;
+    std::cout << "\n--- INICIO DE SESIÓN ---\n";
+    std::cout << "Ingrese su nombre de usuario: ";
+    std::getline(std::cin, nombre);
+
+    Usuarios* usuario = gestionarUsuarios->Login(nombre);
+
+    if (usuario != nullptr) {
+        usuarioAutenticado = usuario;
+        mostrarMenuUsuario(usuarioAutenticado);
+
+    } else {
+        char respuesta;
+        std::cout << "Usuario no encontrado. ¿Desea registrarse? (s/n): ";
+        std::cin >> respuesta;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        if (respuesta == 's' || respuesta == 'S') {
+            manejarRegistro();
+        }
+    }
+
+
+}
+
+void Sistema::mostrarMenuUsuario(Usuarios* usuario){
+    if (usuarioAutenticado == nullptr) {
+        std::cout << "Error: no hay usuario activo.\n";
         return;
     }
 
-    for (int i = 0; i < numUsuarios; i++){
-        Usuarios* u = usuarios[i];
-        if (!u) continue;
+    std::string tipo = usuarioAutenticado->getMembresia();
+    bool esPremium = (tipo == "Premium" || tipo == "premium");
 
-        const char* nick = u->getusuarios() ? u->getusuarios() : "";
-        const char* membresia = u->getMembresia() ? u->getMembresia() : "estandar";
-        const char* ciudad = u->getCiudad() ? u->getCiudad() : "";
-        const char* pais = u->getPais() ? u->getPais() : "";
-        const char* fecha = u->getFechaDeRegistro() ? u-> getFechaDeRegistro() : "";
+    int opcion = -1;
+    do {
+        std::cout << "\n========================================\n";
+        std::cout << "    🎧 MENU DE USUARIO - " << usuarioAutenticado->getusuarios() << "\n";
+        std::cout << "    Tipo de membresía: " << tipo << "\n";
+        std::cout << "========================================\n";
 
-        std::fprintf(archivo, "%s;%s;%s;%s;%s;", nick, membresia, ciudad, pais, fecha);
+        std::cout << "1. Buscar canción por nombre\n";
+        std::cout << "2. Buscar canción por ID\n";
+        std::cout << "3. Reproducir canción\n";
 
-    }
-    std::fclose(archivo);
-    cout << "Usuario guardado corectamente\n";
+        if (esPremium) {
+            std::cout << "4. Agregar canción a favoritos\n";
+            std::cout << "5. Ver lista de favoritos\n";
+            std::cout << "6. Seguir lista de otro usuario Premium\n";
+        } else {
+            std::cout << "4. Ver anuncios pendientes\n";
+        }
+
+        std::cout << "0. Cerrar sesión\n";
+        std::cout << "Seleccione una opción: ";
+
+        opcion = leerOpcion();
+
+        switch (opcion) {
+        case 1:
+            std::cout << "\n(Buscar canción por nombre)\n";
+            break;
+
+        case 2:
+            std::cout << "\n(Buscar canción por ID)\n";
+            break;
+
+        case 3:
+            std::cout << "\n(Reproducir canción)\n";
+            break;
+
+        case 4:
+            if (esPremium) {
+                std::cout << "\n(Agregar canción a favoritos)\n";
+            } else {
+                std::cout << "\n(Mostrar anuncios)\n";
+            }
+            break;
+
+        case 5:
+            if (esPremium) {
+                std::cout << "\n(Mostrar lista de favoritos)\n";
+            } else {
+                std::cout << "Opción inválida.\n";
+            }
+            break;
+
+        case 6:
+            if (esPremium) {
+                std::cout << "\n(Seguir lista de otro usuario Premium)\n";
+            } else {
+                std::cout << "Opción inválida.\n";
+            }
+            break;
+
+        case 0:
+            std::cout << "Cerrando sesión...\n";
+            break;
+
+        default:
+            std::cout << "Opción inválida, intente de nuevo.\n";
+        }
+
+    } while (opcion != 0);
+
+    usuarioAutenticado = nullptr; // limpiar sesión al salir
 }
-
-void Sistema::imprimirUsuarios(){
-    std::cout << "=== Lista de usuarios (" << numUsuarios << ") ===\n";
-    for (int i = 0; i < numUsuarios; ++i) {
-        Usuarios* u = usuarios[i];
-        if (!u) continue;
-        const char* nick = u->getusuarios() ? u->getusuarios() : "(sin nick)";
-        const char* mem = u->getMembresia() ? u->getMembresia() : "(sin membresia)";
-        std::cout << (i+1) << ". " << nick << "  [" << mem << "]\n";
-    }
-    std::cout << "===============================\n";
-}
-
-/*===========================================================================
- * buscarCancion: busca en el arreglo canciones
-====================================================================== */
-
-Cancion* Sistema::buscarCancionId(long id) {
-    if (!canciones) return nullptr;
-    for (int i = 0; i < numCanciones; ++i) {
-        if (canciones[i] && canciones[i]->getId() == id) return canciones[i];
-    }
-    return nullptr;
-}
-
-/*=====================================================================
-  reproduccionAleatoria y medirRecursos:
-=====================================================================*/
-void Sistema::reproduccionAleatoria(class Usuarios* u, int k) {
-    // Implementar lógica
-    cout << "reproduccionAleatoria: en desarrollo (k=" << k << ")\n";
-}
-
-void Sistema::medirRecursos() {
-    cout << "medirRecursos: en desarrollo\n";
-}
-
-
-

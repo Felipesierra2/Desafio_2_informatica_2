@@ -1,58 +1,26 @@
 #ifndef SISTEMA_H
 #define SISTEMA_H
 
-#include "Usuarios.h"
-#include "Cancion.h"
-#include "Publicidad.h"
-
-class Usuarios;
-class Artistas;
-class Cancion;
-class Publicidad;
-
+#include "GestionarUsuarios.h"
+#include "GestionarCanciones.h"
 
 class Sistema {
 private:
+    GestionarUsuarios* gestionarUsuarios;
+    GestionarCanciones* gestionarCanciones;
 
-    //Usuarios
-    Usuarios** usuarios;
-    int numUsuarios;
-    int capacidadUsuarios;
-
-    //Artistas
-    Artistas** artistas;
-    int numArtistas;
-    int capacidadArtistas;
-
-    //Canciones
-    Cancion** canciones;
-    int numCanciones;
-    int capacidadCanciones;
-
-    //Publicidad
-    Publicidad** publicidad;
-    int numPublicidad;
-
-    //Redimensionamos
-    bool tamUsuarios(int nuevo);
-    bool tamArtistas(int nuevo);
-    bool tamCanciones(int nuevo);
-    bool tamPublicidad(int nuevo);
-
+    Usuarios* usuarioAutenticado = nullptr;
 public:
     Sistema();
     ~Sistema();
+    void ejecutarAplicacion();
+private:
+    void mostrarMenuPrincipal();
+    void manejarLogin();
+    void manejarRegistro();
+    void mostrarMenuUsuario(Usuarios* usuario);
 
-    void cargarDatos();
-    void registrarUsuario();
-    void guardarUsuarios();
-    void imprimirUsuarios();
-    bool agregarUsuario(Usuarios* u);
-    Usuarios* iniciarSesion(const char* nickName);
-    void reproduccionAleatoria(class Usuarios* u, int k);
-    void medirRecursos();
-    Cancion* buscarCancionId(long id);
-
+    void cerrarsesion();
 };
 
 #endif

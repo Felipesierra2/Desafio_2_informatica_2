@@ -15,14 +15,17 @@ add_executable(desafio_2_informatica_2
     main.cpp
     Interfaz/menu.h Interfaz/menu.cpp
     Clases/Publicidad.h Clases/Publicidad.cpp
-    Clases/Creditos.h Clases/Creditos.cpp
+    Clases/Credito.h Clases/Credito.cpp
     Clases/Cancion.h Clases/Cancion.cpp
     Clases/Album.h Clases/Album.cpp
     Clases/Artista.h Clases/Artista.cpp
     Clases/Usuarios.h Clases/Usuarios.cpp
     Sistema/Sistema.h Sistema/Sistema.cpp
     Sistema/auxiliares.h Sistema/auxiliares.cpp
+    Sistema/GestionarUsuarios.h Sistema/GestionarUsuarios.cpp
+    Sistema/GestionarCanciones.h Sistema/GestionarCanciones.cpp
 )
+
 
 include(GNUInstallDirs)
 install(TARGETS desafio_2_informatica_2

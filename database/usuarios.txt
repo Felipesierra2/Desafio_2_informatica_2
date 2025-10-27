@@ -1,5 +1,0 @@
-usuarios;membresia;ciudad;pais;fechaDeRegistro
-juan_perez;premium;Bogotá;Colombia;2025-01-15
-maria_gomez;estandar;Medellín;Colombia;2025-02-20
-carlos_roa;premium;Cali;Colombia;2025-03-10
-ana_torres;estandar;Barranquilla;Colombia;2025-01-30

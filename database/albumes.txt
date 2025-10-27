@@ -1,8 +1,0 @@
-id;id_artista;nombre;fecha_lanzamiento;duracion_total;sello;portada;puntuacion;generos
-1000101;10001;Un Verano Sin Ti;2022-05-06;81:45;Rimas Entertainment;/storage/badbunny/portadas/un_verano_sin_ti.png;9.2;Reggaeton,Pop,Latina
-1000102;10001;YHLQMDLG;2020-02-29;67:20;Rimas Entertainment;/storage/badbunny/portadas/yhlqmdlg.png;8.8;Reggaeton,Urbana
-1000201;10002;Ars Magna;2015-11-20;54:30;Universal;/storage/nach/portadas/ars_magna.png;9.5;Hip Hop,Rap
-1000202;10002;Los Viajes Inmóviles;2009-06-02;48:15;Bo;a;/storage/nach/portadas/viajes_inmoviles.png;8.7;Hip Hop,Rap
-1000301;10003;Emmanuel;2020-05-29;49:10;Real Hasta la Muerte;/storage/anuel/portadas/emmanuel.png;7.9;Reggaeton,Trap
-1000401;10004;Justice;2021-03-19;45:05;Def Jam;/storage/justin/portadas/justice.png;8.3;Pop,R&B
-1000501;10005;UTOPIA;2023-07-28;73:25;Cactus Jack;/storage/travisscott/portadas/utopia.png;9.1;Hip Hop,Trap,Rap

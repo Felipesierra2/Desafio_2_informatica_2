@@ -5,9 +5,9 @@ class Album;
 
 class Artista {
 private:
-    int idArtista; //5 Digitos
+    int idArtista;
     int edad;
-    char pais[30];  //Longitud fija
+    char* pais;
     int seguidores;
     int posicionTendencia;
     Album** albumes;
@@ -16,7 +16,7 @@ private:
 
 public:
     Artista();
-    Artista(int id, int edadA, const char* p, int seg, int pos, int capAlb);
+    Artista(int id, int edadA, char* p, int seg, int pos, int capAlb);
     Artista(const Artista& otro);
     ~Artista();
 

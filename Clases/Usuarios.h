@@ -1,47 +1,32 @@
 #ifndef USUARIOS_H
 #define USUARIOS_H
 
-#include "Cancion.h"
-
-class Cancion;
+#include <string>
 
 class Usuarios {
 private:
-    char* usuarios;
-    char* membresia;
-    char* ciudad;
-    char* pais;
-    char* fechaDeRegistro;
-
-    Cancion** favoritos;
-    int numFavoritos;
-    int capacidadFavoritos;
-
-    static char* nuevoChar(const char* cade);
-
-    bool redimensionarFav(int n);
+    std::string usuarios;
+    std::string membresia;
+    std::string ciudad;
+    std::string pais;
+    std::string fechaDeRegistro;
 
 public:
-    Usuarios();
-    Usuarios(const char* us, const char* tipo, const char* ciu, const char* pa, const char* fecha, int capFav);
-    Usuarios(const Usuarios& otroUser);
-    ~Usuarios();
+    // Constructor
+    Usuarios(std::string usuario, std::string membresia, std::string ciudad,
+             std::string pais, std::string fecha);
 
-    bool agregarFavorito(Cancion* c);
-    bool agregarFavorito(int idCancion);
-    bool quitarFavorito(int idCancion);
-    void listaFavoritos() const;
+    // Getters
+    std::string getusuarios() const;
+    std::string getMembresia() const;
+    std::string getCiudad() const;
+    std::string getPais() const;
+    std::string getFechaDeRegistro() const;
 
-    Usuarios& operator =(const Usuarios& otroUser);
-    bool operator ==(const Usuarios& otroUser)const;
-
-
-    const char* getusuarios() const { return usuarios; }
-    const char* getMembresia() const { return membresia; }
-    const char* getCiudad() const { return ciudad; }
-    const char* getPais() const { return pais; }
-    const char* getFechaDeRegistro() const { return fechaDeRegistro;}
+    // Setters
+    void setMembresia(std::string nuevaMembresia);
 };
 
 #endif
+
 

@@ -1,112 +1,60 @@
 #include "Cancion.h"
 #include <iostream>
-#include <cstring>
-
-
+#include <iomanip>
 using namespace std;
 
-Cancion::Cancion(){
-    id = 0;
-    nameCantante[0] = '\0';
-    duracion = 0.0f;
-    rut128[0] = '\0';
-    rut320[0] = '\0';
-    creditos = 0;
-    numCreditos = 0;
-    numReproducciones = 0;
+Cancion::Cancion()
+    : idCancion(0), idAlbum(0), nombre(""), duracion(0.0f),
+    rutaArchivo(""), vecesReproducida(0), creditos(nullptr),
+    numCreditos(0), capacidadCreditos(3) {
+
+    creditos = new Credito*[capacidadCreditos];
+    for (int i = 0; i < capacidadCreditos; ++i)
+        creditos[i] = nullptr;
 }
 
-Cancion::Cancion(long idC, const char* nameC, float timeD, const char* r128,
-                 const char* r320, int credit, int nC, int nR){
+Cancion::Cancion(long id, long idAlbm, const string& n, float d,
+                 const string& ruta, int reproducciones)
+    : idCancion(id), idAlbum(idAlbm), nombre(n), duracion(d),
+    rutaArchivo(ruta), vecesReproducida(reproducciones),
+    numCreditos(0), capacidadCreditos(3) {
 
-    id = idC;
-    duracion = timeD;
-    creditos = credit;
-    numCreditos = nC;
-    numReproducciones = nR;
+    creditos = new Credito*[capacidadCreditos];
+    for (int i = 0; i < capacidadCreditos; ++i)
+        creditos[i] = nullptr;
+}
 
-    if (nameC != nullptr){
-        strncpy(nameCantante, nameC, sizeof(nameCantante) - 1);
-        nameCantante[sizeof(nameCantante) - 1] = '\0';
-    }else{
-        nameCantante[0] = '\0';
+Cancion::~Cancion() {
+    for (int i = 0; i < numCreditos; ++i)
+        delete creditos[i];
+    delete[] creditos;
+}
+
+void Cancion::agregarCredito(Credito* c) {
+    if (!c) return;
+    if (numCreditos >= capacidadCreditos) return; // límite 3: productor, músico, compositor
+    creditos[numCreditos++] = c;
+}
+
+void Cancion::mostrarCreditos() const {
+    cout << "Créditos de '" << nombre << "':\n";
+    if (numCreditos == 0) {
+        cout << "  (sin créditos registrados)\n";
+        return;
     }
-
-    if (r128 != nullptr){
-        strncpy(rut128, r128, sizeof(rut128) - 1);
-        rut128[sizeof(rut128) - 1] = '\0';
-    }else{
-        rut128[0] = '\0';
-    }
-
-    if (r320 != nullptr){
-        strncpy(rut320, r320, sizeof(rut320) - 1);
-        rut320[sizeof(rut320) - 1] = '\0';
-    }else{
-        rut320[0] = '\0';
-    }
+    for (int i = 0; i < numCreditos; ++i)
+        if (creditos[i]) creditos[i]->mostrarCredito();
 }
 
-Cancion::Cancion(const Cancion& otroUser){
-    id = otroUser.id;
-    duracion = otroUser.duracion;
-    creditos = otroUser.creditos;
-    numCreditos = otroUser.numCreditos;
-    numReproducciones = otroUser.numReproducciones;
-
-
-    strncpy(nameCantante , otroUser.nameCantante, sizeof(nameCantante) - 1);
-    nameCantante[sizeof(nameCantante) - 1] = '\0';
-
-    strncpy(rut128, otroUser.rut128, sizeof(rut128) - 1);
-    rut128[sizeof(rut128) - 1] = '\0';
-
-    strncpy(rut320, otroUser.rut320, sizeof(rut320) - 1);
-    rut320[sizeof(rut320) - 1] = '0';
+void Cancion::mostrarCancion() const {
+    cout << left << setw(12) << idCancion
+         << setw(25) << nombre.substr(0, 23)
+         << setw(8) << fixed << setprecision(2) << duracion
+         << setw(10) << vecesReproducida
+         << " | Álbum: " << idAlbum << endl;
 }
 
-Cancion::~Cancion(){
-
+void Cancion::incrementarReproduccion() {
+    ++vecesReproducida;
 }
 
-Cancion& Cancion::operator = (const Cancion& otroUser){
-    if(this != &otroUser){
-        id = otroUser.id;
-        duracion = otroUser.duracion;
-        creditos = otroUser.creditos;
-        numCreditos = otroUser.numCreditos;
-        numReproducciones = otroUser.numReproducciones;
-
-        strncpy(nameCantante , otroUser.nameCantante, sizeof(nameCantante) - 1);
-        nameCantante[sizeof(nameCantante) - 1] = '\0';
-
-        strncpy(rut128, otroUser.rut128, sizeof(rut128) - 1);
-        rut128[sizeof(rut128) - 1] = '\0';
-
-        strncpy(rut320, otroUser.rut320, sizeof(rut320) - 1);
-        rut320[sizeof(rut320) - 1] = '0';
-
-    }
-
-    return *this;
-}
-
-bool Cancion::operator ==(const Cancion& otroUser) const{
-    return id == otroUser.id;
-}
-
-void Cancion::mostrarRutas(bool calidadAlta) const {
-    cout << "Portada: " << rut128 << endl;
-    if(calidadAlta)
-        cout << "Audio: " << rut320 << endl;
-    else
-        cout << "Audio: " << rut128 << endl;
-}
-
-void Cancion::reproducir(bool calidadAlta ){
-    cout << "Reproduciendo cancion ID: " << id << endl;
-    cout << "Cantante: " << nameCantante << endl;
-    cout << "Duracion: " << duracion << endl;
-    mostrarRutas(calidadAlta);
-    numReproducciones++;
-}

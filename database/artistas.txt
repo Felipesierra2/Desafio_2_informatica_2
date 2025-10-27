@@ -1,6 +1,0 @@
-id;nombre;edad;pais;seguidores;posicion_tendencias
-10001;Bad Bunny;31;Puerto Rico;25000000;1
-10002;Nach;51;España;18000000;8
-10003;Anuel;32;Puerto Rico;12000000;101
-10004;Justin;31;Canada;22000000;3
-10005;Travis Scott;34;Estados Unidos;20000000;6

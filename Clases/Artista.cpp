@@ -15,11 +15,10 @@ Artista::Artista() {
     capacidadAlbumes = 0;
     albumes = nullptr;
 
-    // Inicializamos país con cadena vacía
     pais[0] = '\0';
 }
 
-Artista::Artista(int id, int edadA, const char* p, int seg, int pos, int capAlb) {
+Artista::Artista(int id, int edadA, char *p, int seg, int pos, int capAlb) {
     idArtista = id;
     edad = edadA;
     seguidores = seg;
