@@ -13,7 +13,6 @@ include_directories(
 
 add_executable(desafio_2_informatica_2
     main.cpp
-    Interfaz/menu.h Interfaz/menu.cpp
     Clases/Publicidad.h Clases/Publicidad.cpp
     Clases/Credito.h Clases/Credito.cpp
     Clases/Cancion.h Clases/Cancion.cpp

@@ -12,4 +12,7 @@ El proyecto se organiza en módulos (clases separadas) para representar el siste
 - [x] Diagrama UML
 - [x] Estructura del código base
 - [ ] Implementación final (en curso)
+- [x]Fallo la implementación
 
+## Link del video
+https://youtu.be/sJG2pQf86Bo
