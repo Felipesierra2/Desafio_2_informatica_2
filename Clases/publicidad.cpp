@@ -12,10 +12,9 @@ Publicidad::Publicidad(int id, const std::string& msg, char cat) {
     mensaje = msg;
     categoria = cat;
 
-    // Asignar prioridad según categoría
-    if (cat == 'A') prioridad = 3;   // AAA
+    if (cat == 'A') prioridad = 3;
     else if (cat == 'B') prioridad = 2;
-    else prioridad = 1;               // C
+    else prioridad = 1;
 }
 
 int Publicidad::getId() const { return idPublicidad; }

@@ -249,3 +249,22 @@ Usuarios* GestionarUsuarios::buscarPorUsuario(const std::string& usuario) {
     }
     return nullptr;
 }
+
+int GestionarUsuarios::getCantidadUsuarios() const {
+    return cantidadUsuarios;
+}
+
+Usuarios* GestionarUsuarios::getUsuario(int index) const {
+    if (index >= 0 && index < cantidadUsuarios) {
+        return listaUsuarios[index];
+    }
+    return nullptr;
+}
+
+void GestionarUsuarios::agregarUsuario(Usuarios* nuevo) {
+    if (cantidadUsuarios >= capacidadMaxima) {
+        RedimensionarArreglo();
+    }
+    listaUsuarios[cantidadUsuarios++] = nuevo;
+}
+

@@ -7,8 +7,8 @@ class Publicidad {
 private:
     int idPublicidad;
     std::string mensaje;
-    char categoria;  // 'C', 'B' o 'A' (para AAA)
-    int prioridad;   // 1, 2 o 3 según la categoría
+    char categoria;
+    int prioridad;
 
 public:
     Publicidad();
@@ -20,6 +20,5 @@ public:
     int getPrioridad() const;
 };
 
-#endif // PUBLICIDAD_H
-
+#endif
 

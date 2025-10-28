@@ -18,13 +18,11 @@ public:
             const std::string& apellido,
             const std::string& codigoAfiliacion);
 
-    // Getters
     std::string getCategoria() const;
     std::string getNombre() const;
     std::string getApellido() const;
     std::string getCodigoAfiliacion() const;
 
-    // Setters
     void setCategoria(const std::string& cat);
     void setNombre(const std::string& nom);
     void setApellido(const std::string& ape);

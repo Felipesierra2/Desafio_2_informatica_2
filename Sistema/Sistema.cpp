@@ -1,14 +1,17 @@
 #include "Sistema.h"
 #include "Artista.h"
 #include "auxiliares.h"
+#include <fstream>
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
 #include <limits>
+#include <sstream>
 
 
 using namespace std;
 Sistema::Sistema() {
+    usuarioAutenticado = nullptr;
     gestionarUsuarios = new GestionarUsuarios();
     gestionarCanciones = new GestionarCanciones();
     gestionarPublicidad = new GestionarPublicidad();
@@ -104,7 +107,6 @@ void Sistema::reproducirConAnuncios(Usuarios* usuario, long id) {
             }
         }
     }
-
     Cancion* c = gestionarCanciones->buscarPorId(id);
     if (c) {
         std::cout << "Veces reproducida ahora: " << c->getVecesReproducida() << "\n";
@@ -113,7 +115,8 @@ void Sistema::reproducirConAnuncios(Usuarios* usuario, long id) {
 }
 
 void Sistema::ejecutarAplicacion() {
-    int opcion = 0;
+    int opcion;
+    cargarUsuarios();
     do {
         mostrarMenuPrincipal();
         cout << "Seleccione una opción: ";
@@ -154,7 +157,7 @@ void Sistema::manejarRegistro() {
         cout << "Nombre de usuario (1-15 caracteres): ";
         getline(cin, usuario);
         if (usuario.empty() || usuario.length() >= 15)
-            cout << "Longitud inválida. Debe tener entre 1 y 9 caracteres.\n";
+            cout << "Longitud inválida. Debe tener entre 1 y 15 caracteres.\n";
     } while (usuario.empty() || usuario.length() >= 15);
 
     do {
@@ -189,7 +192,6 @@ void Sistema::manejarRegistro() {
 }
 
 void Sistema::manejarLogin() {
-
     std::string nombre;
     std::cout << "\n--- INICIO DE SESIÓN ---\n";
     std::cout << "Ingrese su nombre de usuario: ";
@@ -199,6 +201,7 @@ void Sistema::manejarLogin() {
 
     if (usuario != nullptr) {
         usuarioAutenticado = usuario;
+        usuarioAutenticado->cargarFavoritosDesdeArchivo();
         mostrarMenuUsuario(usuarioAutenticado);
 
     } else {
@@ -235,7 +238,8 @@ void Sistema::mostrarMenuUsuario(Usuarios* usuario) {
         std::cout << "4. Ver lista de Favoritos\n";
         std::cout << "5. Seguir lista de favoritos de otro usuario premium\n";
         std::cout << "6. Información de membresía / beneficios\n";
-        std::cout << "7. Cerrar sesión\n";
+        std::cout << "7. Eliminar de favoritos\n";
+
         std::cout << "Seleccione una opción: ";
         if (!(std::cin >> opcion)) {
             std::cin.clear();
@@ -283,14 +287,30 @@ void Sistema::mostrarMenuUsuario(Usuarios* usuario) {
             }
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
+            Cancion* cancion = gestionarCanciones->buscarPorId(id);
+            if (cancion == nullptr) {
+                std::cout << "No existe una canción con ese ID.\n";
+                continue;
+            }
+
             bool ok = usuario->addFavorito(id);
-            if (ok) std::cout << "Canción agregada a Favoritos.\n";
-            else std::cout << "No se pudo agregar. ¿ID existe o ya está en favoritos? ¿Límite alcanzado?\n";
+            if (ok){
+                usuario->guardarFavoritoEnArchivo(id, cancion);
+                std::cout << "Canción agregada a Favoritos.\n";
+            }else std::cout << "No se pudo agregar. ¿ID existe o ya está en favoritos? ¿Límite alcanzado?\n";
         }
         else if (opcion == 4) {
+            if(!esPremium){
+                std::cout << "Solo los usuarios Premium pueden realizar esta acción. " <<std::endl;
+                continue;
+            }
             this->verFavoritos(usuario);
         }
         else if (opcion == 5) {
+            if(!esPremium){
+                std::cout << "Solo los usuarios Premium pueden realizar esta acción. " <<std::endl;
+                continue;
+            }
             std::string otroUsuarioNick;
             std::cout << "Ingrese el nombre/usuario de la persona a seguir: ";
             std::getline(std::cin, otroUsuarioNick);
@@ -313,7 +333,10 @@ void Sistema::mostrarMenuUsuario(Usuarios* usuario) {
             }
 
             bool ok = usuario->seguirListaDe(otro);
-            if (ok) std::cout << "Ahora sigues la lista de favoritos de " << otro->getusuarios() << ".\n";
+            if (ok){
+                seguirListaDeOtroUsuario(usuario, otro);
+                std::cout << "Ahora sigues la lista de favoritos de " << otro->getusuarios() << ".\n";
+            }
             else std::cout << "No fue posible seguir la lista.\n";
 
         }
@@ -333,9 +356,10 @@ void Sistema::mostrarMenuUsuario(Usuarios* usuario) {
             std::cout << "----------------------------------\n";
         }
         else if (opcion == 7) {
-            std::cout << "Cerrando sesión...\n";
+            eliminarFavorito(usuario);
+            std::cout << "Eliminando de favoritos..\n";
+        }else if(opcion == 8){
             reiniciarContadoresSesion();
-            break;
         }
         else {
             std::cout << "Opción no válida. Intente de nuevo.\n";
@@ -411,32 +435,215 @@ void Sistema::reproducirCancionUsuario(Usuarios* usuario) {
 }
 
 void Sistema::verFavoritos(Usuarios* usuario) {
+    usuario->cargarFavoritosDesdeArchivo();
     if (usuario == nullptr) {
         std::cout << "Error: usuario no válido.\n";
         return;
     }
 
-    int cantidad = usuario->getCantidadFavoritos();
+    Usuarios* origen = usuario;
+    Usuarios* seguido = usuario->getUsuarioQueSigue();
+
+    if (seguido != nullptr) {
+        std::cout << "Mostrando tus favoritos combinados con los de " << seguido->getNombre() << ":\n";
+        for (int i = 0; i < seguido->getCantidadFavoritos(); ++i) {
+            long id = seguido->getFavorito(i);
+            if (usuario->addFavorito(id)) {
+                Cancion* c = gestionarCanciones->buscarPorId(id);
+                usuario->guardarFavoritoEnArchivo(id, c);
+            }
+        }
+    }
+
+
+    int cantidad = origen->getCantidadFavoritos();
     if (cantidad == 0) {
-        std::cout << "No tienes canciones favoritas aún.\n";
+        std::cout << "No hay canciones favoritas para mostrar.\n";
         return;
     }
 
-    std::cout << "\n=== TUS CANCIONES FAVORITAS ===\n";
+    std::cout << "\n=== FAVORITOS ===\n";
     for (int i = 0; i < cantidad; ++i) {
-        long idCancion = usuario->getFavorito(i);
+        long idCancion = origen->getFavorito(i);
         Cancion* c = gestionarCanciones->buscarPorId(idCancion);
-
         if (c != nullptr) {
             std::cout << (i + 1) << ". " << c->getNombre()
             << " (" << c->getDuracion() << " min, "
-            << c->getVecesReproducida() << " reproducciones)\n";
+            << c->getVecesReproducida() << " rep.)\n";
         } else {
             std::cout << (i + 1) << ". ID " << idCancion << " (no encontrado)\n";
         }
     }
-    std::cout << "===============================\n";
+    std::cout << "=================\n";
 }
+
+
+void Sistema::agregarFavorito(Usuarios* usuario) {
+    if (usuario == nullptr) {
+        std::cout << "Error: usuario no válido.\n";
+        return;
+    }
+
+    long id;
+    std::cout << "Ingrese el ID de la canción que desea agregar a favoritos: ";
+    std::cin >> id;
+
+    Cancion* cancion = gestionarCanciones->buscarPorId(id);
+    if (cancion == nullptr) {
+        std::cout << "No se encontró una canción con ese ID.\n";
+        return;
+    }
+
+    if (usuario->addFavorito(id)) {
+        usuario->guardarFavoritoEnArchivo(id, cancion);
+        std::cout << "Canción agregada a tus favoritos.\n";
+    } else {
+        std::cout << "Esa canción ya está en tus favoritos.\n";
+    }
+}
+
+void Sistema::eliminarFavorito(Usuarios* usuario){
+    if (usuario == nullptr) {
+        std::cout << "Error: usuario no válido.\n";
+        return;
+    }
+
+    long id;
+    std::cout << "Ingrese el ID de la canción que desea eliminar de favoritos: ";
+    std::cin >> id;
+
+    usuario->eliminarFavorito(id);
+}
+
+void Sistema::seguirListaDeOtroUsuario(Usuarios* actual, Usuarios* otro) {
+    if (!actual || !otro) {
+        std::cout << "Error: usuarios inválidos.\n";
+        return;
+    }
+    if (actual == otro) {
+        std::cout << "No puedes seguirte a ti mismo.\n";
+        return;
+    }
+    if (otro->getMembresia() != "Premium" && otro->getMembresia() != "premium") {
+        std::cout << "Solo puedes seguir listas de usuarios Premium.\n";
+        return;
+    }
+
+    if (!actual->seguirListaDe(otro)) {
+        std::cout << "No se pudo establecer el seguimiento.\n";
+        return;
+    }
+
+    std::cout << actual->getNombre() << " ahora sigue la lista de " << otro->getNombre() << ".\n";
+    {
+        std::ofstream out("database/seguimientos.txt", std::ios::app);
+        if (!out) {
+            std::cout << "Error: no se pudo abrir seguimientos.txt\n";
+        } else {
+            out << actual->getNombre() << ";" << otro->getNombre() << "\n";
+            out.close();
+        }
+    }
+    std::cout << "Cantidad favoritos: " << otro->getCantidadFavoritos() << std::endl;
+    for (int i = 0; i < otro->getCantidadFavoritos(); ++i) {
+        long idCancion = otro->getFavorito(i);
+
+        if (actual->addFavorito(idCancion)) {
+            Cancion* c = gestionarCanciones->buscarPorId(idCancion);
+            actual->guardarFavoritoEnArchivo(idCancion, c);
+        }
+    }
+}
+
+
+Usuarios* Sistema::buscarUsuarioPorNombre(const std::string& nombre) {
+    int pos = gestionarUsuarios->BuscarUsuario(nombre);
+    if (pos != -1)
+        return gestionarUsuarios->getUsuario(pos);
+    return nullptr;
+}
+
+void Sistema::cargarUsuarios() {
+    const char* ruta = "database/usuarios.txt";
+    std::ifstream in(ruta);
+
+    if (!in) {
+        std::cout << "Advertencia: no se encontró el archivo de usuarios (" << ruta << ").\n";
+        return;
+    }
+
+    std::string linea;
+    bool primera = true;
+    int cargados = 0;
+
+    while (std::getline(in, linea)) {
+        if (primera) {
+            primera = false;
+            continue;
+        }
+
+        if (linea.empty()) continue;
+
+        std::stringstream ss(linea);
+        std::string usuario, membresia, ciudad, pais, fecha, seguido;
+
+        std::getline(ss, usuario, ';');
+        std::getline(ss, membresia, ';');
+        std::getline(ss, ciudad, ';');
+        std::getline(ss, pais, ';');
+        std::getline(ss, fecha, ';');
+        std::getline(ss, seguido, ';');
+
+        std::string extra;
+        std::getline(ss, extra, ';');
+
+        Usuarios* nuevo = new Usuarios(usuario, membresia, ciudad, pais, fecha);
+        gestionarUsuarios->agregarUsuario(nuevo);
+        cargados++;
+    }
+
+    in.close();
+
+    std::cout << "Usuarios cargados correctamente: " << cargados << "\n";
+
+    cargarSeguimientos();
+}
+
+
+void Sistema::cargarSeguimientos() {
+    std::ifstream in("database/seguimientos.txt");
+    if (!in) {
+        return;
+    }
+
+    std::string linea;
+    while (std::getline(in, linea)) {
+        if (linea.empty()) continue;
+
+        size_t sep = linea.find(';');
+        if (sep == std::string::npos) continue;
+        std::string seguidor = linea.substr(0, sep);
+        std::string seguido = linea.substr(sep + 1);
+
+        Usuarios* uSeguidor = gestionarUsuarios->buscarPorUsuario(seguidor);
+        Usuarios* uSeguido  = gestionarUsuarios->buscarPorUsuario(seguido);
+        if (!uSeguidor || !uSeguido) continue;
+
+        uSeguidor->seguirListaDe(uSeguido);
+
+        for (int i = 0; i < uSeguido->getCantidadFavoritos(); ++i) {
+            long id = uSeguido->getFavorito(i);
+            if (uSeguidor->addFavorito(id)) {
+                Cancion* c = gestionarCanciones->buscarPorId(id);
+                uSeguidor->guardarFavoritoEnArchivo(id, c);
+            }
+        }
+    }
+    in.close();
+}
+
+
+
 
 
 

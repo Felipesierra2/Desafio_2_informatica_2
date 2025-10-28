@@ -19,7 +19,7 @@ private:
     std::string seleccionarAnuncioAleatorio();
     void reproducirConAnuncios(Usuarios* usuario, long id);
 
-    Usuarios* usuarioAutenticado = nullptr;
+    Usuarios* usuarioAutenticado;
 public:
     Sistema();
     ~Sistema();
@@ -28,17 +28,22 @@ public:
     void buscarCancionPorNombre();
     void buscarCancionPorId();
     void reproducirCancionUsuario(Usuarios* usuario);
-    void agregarFavorito(Usuarios* usuario);
+
     void verFavoritos(Usuarios* usuario);
-    void seguirUsuarioPremium(Usuarios* usuario);
+    void agregarFavorito(Usuarios* usuario);
+    void seguirListaDeOtroUsuario(Usuarios* actual, Usuarios* otro);
+    void eliminarFavorito(Usuarios* usuario);
+
+    void cargarUsuarios();
+    void cargarSeguimientos();
+    Usuarios* buscarUsuarioPorNombre(const std::string& nombre);
+
 
     void mostrarMenuPrincipal();
     void manejarLogin();
     void manejarRegistro();
     void mostrarMenuUsuario(Usuarios* usuario);
 
-
-    void cerrarsesion();
 };
 
 #endif

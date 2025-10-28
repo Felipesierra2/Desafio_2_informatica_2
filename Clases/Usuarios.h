@@ -1,6 +1,7 @@
 #ifndef USUARIOS_H
 #define USUARIOS_H
 
+#include "Cancion.h"
 #include <string>
 #include <iostream>
 
@@ -25,11 +26,12 @@ public:
     ~Usuarios();
 
     std::string getusuarios() const;
-    std::string getNombre() const;   // alias útil
+    std::string getNombre() const;
     std::string getMembresia() const;
     std::string getCiudad() const;
     std::string getPais() const;
     std::string getFechaDeRegistro() const;
+    std::string getNombreUsuarioQueSigue()const;
 
     void setMembresia(std::string nuevaMembresia);
 
@@ -38,9 +40,14 @@ public:
     int getCantidadFavoritos() const;
     long getFavorito(int indice) const;
 
-
     bool seguirListaDe(Usuarios* otro);
     Usuarios* getUsuarioQueSigue() const;
+    void guardarFavoritoEnArchivo(long idCancion, const Cancion* cancion);
+    void cargarFavoritosDesdeArchivo();
+    bool eliminarFavorito(long idCancion);
+    void guardarEnArchivo(std::ofstream& archivo) const;
+
+
 };
 
 #endif

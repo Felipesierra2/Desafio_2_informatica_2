@@ -6,14 +6,14 @@
 
 class Album{
 private:
-    int idAlbum; //2 digitos, parte del id de la cancion
-    char nombreCantante[50]; //Personaje asociado
-    char generos[4][20]; //Hasta 4 generos
+    int idAlbum;
+    char nombreCantante[50];
+    char generos[4][20];
     char fechaLanzamiento[15];
     float duracionAlbum;
-    char sello[50]; // sello discografico
-    char portada[128]; //Rura .png
-    float puntuacion; //1.0 - 10.0
+    char sello[50];
+    char portada[128];
+    float puntuacion;
     Cancion* canciones;
     int numCanciones;
     int capacidadCanciones;
